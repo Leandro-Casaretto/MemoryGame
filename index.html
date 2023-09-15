@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+<head>   
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Memoria</title>    
+</head>
+
+<!-- EJERCICIO: Hacer un juego de memoria (estilo Simon) -->
+
+<body>
+    <div class="titulo">
+        <h1>Juego de memoria</h1>
+    </div>
+
+    <div class="game-container">
+        <link rel="stylesheet" href="style.css">
+    </div>
+
+    <script>
+        // Función para "escuchar" cuando el contenido del DOM esté listo
+        document.addEventListener("DOMContentLoaded", function () {
+            // Definimos los colores
+            const colors = ["red", "blue", "green", "yellow"];
+            // Definimos la secuencia del juego
+            const sequence = [];
+            // Definimos la secuencia del jugador
+            let clickSequence = [];
+            // Flag para permitir que se clickee
+            let canClick = false;
+
+            // Obtener un color aleatorio
+            function getRandomColor() {
+                const randomIndex = Math.floor(Math.random() * colors.length);
+                return colors[randomIndex];
+            }
+
+            // Comienzo del juego
+            function playSequence() {
+                let i = 0;
+                canClick = false;
+
+                // Hacemos aparecer los colores cada cierto tiempo
+                const interval = setInterval(() => {
+                    if (i < sequence.length) {
+                        // Obtenemos el elemento del color
+                        const colorBox = document.getElementById(sequence[i]);
+                        // Hacemos que el color se vea
+                        colorBox.style.opacity = 1;
+                        // Opacamos el color después de 500 ms
+                        setTimeout(() => {
+                            colorBox.style.opacity = 0.5;
+                        }, 500);
+                        // Sacamos la opacidad
+                        setTimeout(() => {
+                            colorBox.style.opacity = 1;
+                        }, 1000);
+                        i++;
+                    } else {
+                        // Permitimos que se pueda clickear de nuevo
+                        clearInterval(interval);
+                        canClick = true;
+                    }
+                }, 700);
+            }
+
+            // Iniciamos el juego
+            function playGame() {
+                sequence.push(getRandomColor());
+                playSequence();
+            }
+
+            // Verificamos la secuencia de los clicks (el juego)
+            function clickHandler() {
+                for (let i = 0; i < clickSequence.length; i++) {
+                    if (clickSequence[i] !== sequence[i]) {
+                        return;
+                    }
+                }
+                if (clickSequence.length === sequence.length) {
+                    clickSequence = [];
+                    playGame();
+                }
+            }
+
+            // Crear el elemento de los cuadrados
+            function createColorBox(color) {
+                const colorBox = document.createElement("div");
+                colorBox.className = "color-box";
+                colorBox.style.backgroundColor = color;
+                colorBox.id = color;
+                colorBox.addEventListener("click", () => {
+                    if (canClick) {
+                        clickSequence.push(color);
+                        clickHandler();
+                    }
+                });
+                return colorBox;
+            }
+
+            // Inicializamos el juego y creamos los cuadrados
+            function initialize() {
+                const gameContainer = document.querySelector(".game-container");
+                playGame();
+
+                // Crear cajas de color y agregarlas al contenedor
+                for (const color of colors) {
+                    const colorBox = createColorBox(color);
+                    gameContainer.appendChild(colorBox);
+                }
+            }
+
+            // Inicializar el juego cuando el DOM esté listo
+            initialize();
+        });
+    </script>
+</body>
+</html>
